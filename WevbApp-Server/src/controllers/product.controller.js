@@ -487,7 +487,7 @@ const ValidCart = async (req, res, next) => {
         // warning += `Sản phẩm ${doc.name} không có màu ${unit.color}. `;
         continue;
       }
-
+      let listImports = await Import.find({ 'products.product': doc._id })
       const doc_color = doc.colors[colorIndex];
       // console.log("doc_color")
       if (doc_color.quantity < unit.quantity) {
@@ -499,6 +499,7 @@ const ValidCart = async (req, res, next) => {
       newCart.push(unit);
       cartItems.push({
         product: doc._id,
+        listImports,
         name: doc.name,
         code: doc.code,
         category: doc.category,
@@ -537,11 +538,11 @@ const Imports = async (req, res, next) => {
     const success = [];
     const failure = [];
     for (let i = 0; i < data.length; i++) {
-      const { code, color, quantity, price } = data[i];
+      const { code, color, quantity, price, exp } = data[i];
       // console.log("data",data[i])
       const doc = await Product.findOne({ code }).select('colors').exec();
 
-      if (!doc) failure.push({ code, quantity, price: Number(price) });
+      if (!doc) failure.push({ code, quantity, price: Number(price), sold:0 , exp });
       else {
         var flag = false;
         for (let colordoc of doc.colors) {
@@ -554,7 +555,7 @@ const Imports = async (req, res, next) => {
             break;
           }
         }
-        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color });
+        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color, sold:0, exp});
         else failure.push(data[i]);
       }
     }

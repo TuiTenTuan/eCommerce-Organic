@@ -17,6 +17,16 @@ const billSchema = mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId, required: [true, 'Product id in bill cannot be empty.'],
             ref: 'Product'
         },
+        imports:[{
+            quantity: {
+                type: Number,
+                required: [true, 'imports quantity in bill cannot be empty.'],
+            },
+            price: {
+                type: Number,
+                required: [true, 'imports price in bill cannot be empty.'],
+            },
+        }],
         color: {
             type: String,
             required: [true, 'Product color in bill cannot be empty.'],

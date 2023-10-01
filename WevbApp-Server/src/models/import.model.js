@@ -8,7 +8,9 @@ const importSchema = mongoose.Schema(
         product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
         quantity: Number,
         price: Number,
-        color: String
+        color: String,
+        sold: Number,
+        exp: Date
       }
     ],
     admin: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' }

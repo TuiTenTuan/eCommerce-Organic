@@ -758,7 +758,7 @@ const Create = async (req, res, next) => {
     var verify = false;
 
     console.log(phone);
-
+    console.log("TMP:",cartItems)
     if (!cartItems || cartItems.length == 0)
       return res.status(400).send({ status: 400, msg: 'Giỏ hàng rỗng. ' + warning });
     if (cod == undefined) return res.status(400).send({ status: 400, msg: 'Mời chọn phương thức thanh toán' });
@@ -805,8 +805,29 @@ const Create = async (req, res, next) => {
     if (!!warning) return res.status(400).send({ status: 400, msg: warning });
 
     const products = [];
-    cartItems.forEach((i) =>
-      products.push({ product: i.product, color: i.color, quantity: i.quantity, price: i.price, sale: i.sale })
+    cartItems.forEach((i) =>{
+      let imports = [];
+      let quantity = i.quantity;
+      // chua kiem tra dieu kien listImport -- quantity > sold , exp, sort theo createdDate
+      for ( let ip of i.listImports){
+        if (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold >= quantity){
+          imports.push({
+            quantity : quantity,
+            price : ip?._doc?.products[0]?._doc?.price
+          });
+          // chua update collection Imports (sold)
+          break;
+        }else{
+          imports.push({
+            quantity : (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold),
+            price: ip?._doc?.products[0]?._doc?.price
+          });
+          quantity -= (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold);
+          // chua update collection Imports (sold) 
+        } 
+      }
+      products.push({ product: i.product, imports, color: i.color, quantity: i.quantity, price: i.price, sale: i.sale })
+    }
     );
     const status = [{ statusTimeline: 'Ordered', time: Date.now() }];
     const bill = new Bill({

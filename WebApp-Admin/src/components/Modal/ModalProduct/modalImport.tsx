@@ -14,6 +14,7 @@ export default function ModalImport({
   type FormValues = {
     quantity: number;
     price: number;
+    exp: Date;
   };
 
   const [colorModal, setColorModal] = useState<Array<any>>([]);
@@ -36,6 +37,7 @@ export default function ModalImport({
           color: nameProduct,
           quantity: Number(data.quantity),
           price: Number(data.price),
+          exp: data.exp
         },
       ],
     };
@@ -125,6 +127,16 @@ export default function ModalImport({
                     id="username"
                     type="text"
                     placeholder="Price"
+                  />
+                </div>
+                <div className="name flex justify-center items-center gap-2 mb-[20px]">
+                  <div className="flex-1 text-end">Exp: </div>
+                  <input
+                    {...register("exp")}
+                    className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username"
+                    type="Date"
+                    placeholder="Exp"
                   />
                 </div>
               </div>
