@@ -743,6 +743,7 @@ const Phoneformat = (phone) => {
   return phone;
 };
 
+const  Create = async (req, res, next) => {
   console.log('create');
   try {
     const discountCode = req.body.discountCode;
