@@ -487,7 +487,8 @@ const ValidCart = async (req, res, next) => {
         // warning += `Sản phẩm ${doc.name} không có màu ${unit.color}. `;
         continue;
       }
-      let listImports = await Import.find({ 'products.product': doc._id })
+      let today = new Date();
+      let listImports = await Import.find({ 'products.product': doc._id },{"products.soldOut":false},{'products.exp':{$lte: today}}).sort({"products.exp":1});
       const doc_color = doc.colors[colorIndex];
       // console.log("doc_color")
       if (doc_color.quantity < unit.quantity) {
@@ -542,7 +543,7 @@ const Imports = async (req, res, next) => {
       // console.log("data",data[i])
       const doc = await Product.findOne({ code }).select('colors').exec();
 
-      if (!doc) failure.push({ code, quantity, price: Number(price), sold:0 , exp });
+      if (!doc) failure.push({ code, quantity, price: Number(price)});
       else {
         var flag = false;
         for (let colordoc of doc.colors) {
@@ -555,7 +556,7 @@ const Imports = async (req, res, next) => {
             break;
           }
         }
-        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color, sold:0, exp});
+        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color, sold:0, soldOut:false, exp});
         else failure.push(data[i]);
       }
     }

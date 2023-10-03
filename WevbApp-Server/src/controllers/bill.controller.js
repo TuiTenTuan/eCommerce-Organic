@@ -743,7 +743,6 @@ const Phoneformat = (phone) => {
   return phone;
 };
 
-const Create = async (req, res, next) => {
   console.log('create');
   try {
     const discountCode = req.body.discountCode;
@@ -805,17 +804,35 @@ const Create = async (req, res, next) => {
     if (!!warning) return res.status(400).send({ status: 400, msg: warning });
 
     const products = [];
-    cartItems.forEach((i) =>{
+    cartItems.forEach(async (i) =>{
       let imports = [];
       let quantity = i.quantity;
-      // chua kiem tra dieu kien listImport -- quantity > sold , exp, sort theo createdDate
       for ( let ip of i.listImports){
         if (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold >= quantity){
           imports.push({
             quantity : quantity,
             price : ip?._doc?.products[0]?._doc?.price
           });
-          // chua update collection Imports (sold)
+          let soldOut = false;
+          let sold =  ip?._doc?.products[0]?._doc?.sold + quantity
+          if(soldOut == ip?._doc?.products[0]?._doc?.quantity) soldOut =true;
+          await Import.findOneAndUpdate(
+            {_id:ip?._id},
+            {
+              $set:
+              {
+              'products.0.soldOut':soldOut,
+              'products.0.sold':sold
+              }
+            },
+            { new: true },(err, updatedImport) => {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log(updatedImport);
+              }
+            }
+          )
           break;
         }else{
           imports.push({
@@ -823,7 +840,23 @@ const Create = async (req, res, next) => {
             price: ip?._doc?.products[0]?._doc?.price
           });
           quantity -= (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold);
-          // chua update collection Imports (sold) 
+          await Import.findOneAndUpdate(
+            {_id:ip?._id},
+            {
+              $set:
+              {
+              'products.0.soldOut':true,
+              'products.0.sold':ip?._doc?.products[0]?._doc?.quantity
+              }
+            },
+            { new: true },(err, updatedImport) => {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log(updatedImport);
+              }
+            }
+          )
         } 
       }
       products.push({ product: i.product, imports, color: i.color, quantity: i.quantity, price: i.price, sale: i.sale })

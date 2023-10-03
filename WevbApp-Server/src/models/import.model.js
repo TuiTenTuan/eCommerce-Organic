@@ -10,6 +10,7 @@ const importSchema = mongoose.Schema(
         price: Number,
         color: String,
         sold: Number,
+        soldOut : Boolean,
         exp: Date
       }
     ],
