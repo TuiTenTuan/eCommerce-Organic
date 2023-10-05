@@ -25,7 +25,7 @@ router.route('/vnpay_ipn').get(billController.CheckVNPay);
 router.route('/verify').post(billController.Verity);
 router.route('/refund').post(billController.Refund);
 router.route('/read').post(getCurUser(), billController.Read);
-router.route('/revenue').post(billController.Revenue);
+router.route('/revenue').post(billController.statistic);
 // router.route('/calculateProfitLoss').post(billController.calculateProfitLoss);
 
 module.exports = router;

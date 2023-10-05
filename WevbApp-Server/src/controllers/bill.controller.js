@@ -358,6 +358,62 @@ const Revenue = async (req, res, next) => {
   }
 };
 
+const statistic = async (req,res)=>{
+  try{
+    const dateStartStr = req.body.dateStart;
+    const dateEndStr = req.body.dateEnd;
+    let step = req.body.step;
+    let type = req.body.type;
+    var listProduct = [];
+    var tempListProduct = [];
+    productItem = new ProductItem();
+    const dateStart = dateStartStr ? new Date(dateStartStr) : new Date(1970, 1, 1);
+    const dateEnd = dateEndStr ? new Date(dateEndStr) : new Date();
+
+    const products = await Product.find({})
+
+    for (let product of products){
+      const listBill = await Bill.find({
+        $and:[
+          {"products.0.product":product._id},
+          {"createdAt":{$gte:dateStart}},
+          {"createdAt":{$lte:dateEnd}}
+        ]
+      })
+      let sold = 0
+      let total = 0
+      let imports = 0 
+
+      for(let bill of listBill){
+        total+= bill.total
+        for(let ip of bill.products[0].imports){
+          sold += ip.quantity
+          imports += ip.price*ip.quantity
+        }
+      }
+      listProduct.push({
+        _id:product._id,
+        name:product.name,
+        code: product.code,
+        image_url: product.image_url,
+        quantity: product.quantity,//con lai trong kho
+        sold:sold,//da ban
+        total: total,//tong gia ban
+        imports,// Tong gia nhap
+      })
+    }
+    return responseSuccess({
+      res,
+      message: config.message.success,
+      data: {listProduct }
+    });
+
+  }catch (err) {
+    console.log(err)
+    return res.status(500).send({ msg: config.message.err500 });
+  }
+}
+
 // const calculateProfitLoss = async (req, res, next) => {
 //   console.log('==================><');
 //   try {
@@ -805,10 +861,12 @@ const  Create = async (req, res, next) => {
     if (!!warning) return res.status(400).send({ status: 400, msg: warning });
 
     const products = [];
-    cartItems.forEach(async (i) =>{
+    await cartItems.forEach(async (i) =>{
       let imports = [];
       let quantity = i.quantity;
       for ( let ip of i.listImports){
+        let ipQuantity= ip?._doc?.products[0]?._doc?.quantity
+        let ipSold= ip?._doc?.products[0]?._doc?.sold
         if (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold >= quantity){
           imports.push({
             quantity : quantity,
@@ -816,8 +874,8 @@ const  Create = async (req, res, next) => {
           });
           let soldOut = false;
           let sold =  ip?._doc?.products[0]?._doc?.sold + quantity
-          if(soldOut == ip?._doc?.products[0]?._doc?.quantity) soldOut =true;
-          await Import.findOneAndUpdate(
+          if(sold == ip?._doc?.products[0]?._doc?.quantity) soldOut =true;
+          Import.findOneAndUpdate(
             {_id:ip?._id},
             {
               $set:
@@ -841,7 +899,7 @@ const  Create = async (req, res, next) => {
             price: ip?._doc?.products[0]?._doc?.price
           });
           quantity -= (ip?._doc?.products[0]?._doc?.quantity - ip?._doc?.products[0]?._doc?.sold);
-          await Import.findOneAndUpdate(
+          Import.findOneAndUpdate(
             {_id:ip?._id},
             {
               $set:
@@ -904,7 +962,7 @@ const  Create = async (req, res, next) => {
       }
       await session.commitTransaction();
       session.endSession();
-      if (!!account.email) sender.SendMail(account.email, 'Tạo Đơn Hàng Thành Công', 'Mã đơn: ' + billDoc._id);
+      // if (!!account.email) sender.SendMail(account.email, 'Tạo Đơn Hàng Thành Công', 'Mã đơn: ' + billDoc._id);
       console.log('================> ' + account.email);
       // const newPhone = Phoneformat(phone);
       // sender.SendSMS('Tạo Đơn Hàng Thành Công, Mã đơn: ' + billDoc._id, newPhone);
@@ -1281,5 +1339,6 @@ module.exports = {
   CheckVNPay,
   Read,
   Revenue,
-  Refund
+  Refund,
+  statistic
 };
