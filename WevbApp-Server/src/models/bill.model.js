@@ -59,7 +59,7 @@ const billSchema = mongoose.Schema(
             default : Date.now()
         }
     }],
-
+    discountPrice: {type: Number, required: true},//  số tiền được giảm giá khi sử dụng mã discount
     refund: {type: Boolean, default: false},
     paid: {type: Boolean, default: false},
     ship: {type: Number, required: true}, 

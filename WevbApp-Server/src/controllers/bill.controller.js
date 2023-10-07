@@ -13,6 +13,7 @@ const querystring = require('qs');
 const crypto = require('crypto');
 const axios = require('axios');
 const { date } = require('joi');
+const e = require('express');
 
 // const Revenue = async (req, res, next) => {
 //   try {
@@ -364,48 +365,138 @@ const statistic = async (req,res)=>{
     const dateEndStr = req.body.dateEnd;
     let step = req.body.step;
     let type = req.body.type;
+    step = ['second', 'day', 'month', 'year'].includes(step) ? step : 'month';
+    type = ['bill', 'import'].includes(type) ? type : 'bill';
     var listProduct = [];
     var tempListProduct = [];
-    productItem = new ProductItem();
+    
     const dateStart = dateStartStr ? new Date(dateStartStr) : new Date(1970, 1, 1);
     const dateEnd = dateEndStr ? new Date(dateEndStr) : new Date();
 
     const products = await Product.find({})
+    const step_time =
+    step === 'year' ? config.yearlong : step === 'month' ? config.monthlong : step === 'day' ? config.daylong : 1;
 
-    for (let product of products){
-      const listBill = await Bill.find({
-        $and:[
-          {"products.0.product":product._id},
-          {"createdAt":{$gte:dateStart}},
-          {"createdAt":{$lte:dateEnd}}
-        ]
-      })
-      let sold = 0
-      let total = 0
-      let imports = 0 
-
-      for(let bill of listBill){
-        total+= bill.total
-        for(let ip of bill.products[0].imports){
-          sold += ip.quantity
-          imports += ip.price*ip.quantity
+    const tempModel = type === 'bill' ? Bill : Import;
+    const option = type === 'bill'
+      ? { createdAt: { $gt: dateStart, $lt: dateEnd }, 'status.0.statusTimeline': { $in: ['Done'] } }
+      : { createdAt: { $gt: dateStart, $lt: dateEnd } };
+    const { counter: counter1, graph: tempGraph } = await processBills(tempModel, option, step_time);
+    if(type === 'bill'){
+      for (let product of products){
+        const listBill = await Bill.find({
+          $and:[
+            {"products.product":product._id},
+            {"createdAt":{$gte:dateStart}},
+            {"createdAt":{$lte:dateEnd}},
+            {"status.statusTimeline":"Done"}
+          ]
+        })
+        let sold = 0
+        let total = 0
+        let imports = 0 
+  
+        for(let bill of listBill){
+          for(let pd of bill.products){
+            if(product._id.equals(pd.product)){
+              total += pd.quantity*pd.price -pd.quantity*pd.price*pd.sale/100
+              total -= ((pd.quantity*pd.price)/bill.total)*bill.discountPrice
+              for(let ip of pd.imports){
+                imports += ip.price*ip.quantity
+                sold += ip.quantity
+              }
+              break;
+            }
+          }
+        }
+        if(sold >0){
+          listProduct.push({
+            _id:product._id,
+            name:product.name,
+            code: product.code,
+            image_url: product.image_url,
+            quantity: product.quantity,//con lai trong kho
+            sold:sold,//da ban
+            total: total,//tong gia ban
+          })
+        }
+        if(imports>0){
+          tempListProduct.push({
+            _id:product._id,
+            name:product.name,
+            code: product.code,
+            image_url: product.image_url,
+            quantity: product.quantity,//con lai trong kho
+            sold:sold,//da ban
+            total: imports,//tong gia nhap
+          })
+        }
+        
+        
+      } 
+    }else {
+      for (let product of products){
+        const listImport = await Import.find({
+          $and:[
+            {"products.product":product._id},
+            {"createdAt":{$gte:dateStart}},
+            {"createdAt":{$lte:dateEnd}}
+          ]
+        })
+        let quantity = 0
+        let total = 0
+        let totalSold = 0
+        let sold =0;
+        for (let ip of listImport){
+          quantity += ip.products[0].quantity
+          total += ip.products[0].quantity*ip.products[0].price
+        }
+        if (quantity>0){
+          listProduct.push({
+            _id:product._id,
+            name:product.name,
+            code: product.code,
+            image_url: product.image_url,
+            quantity:product.quantity,
+            sold:quantity,
+            total,
+          })
+        }
+        const listBill = await Bill.find({
+          $and:[
+            {"products.product":product._id},
+            {"createdAt":{$gte:dateStart}},
+            {"createdAt":{$lte:dateEnd}},
+            {"status.statusTimeline":"Done"}
+          ]
+        })
+        for(let bill of listBill){
+          for(let pd of bill.products){
+            if(product._id.equals(pd.product) ){
+                sold+=pd.quantity
+                totalSold += pd.quantity*pd.price - pd.quantity*pd.price*pd.sale/100
+                totalSold -= ((pd.quantity*pd.price)/bill.total)*bill.discountPrice
+            }
+          }
+        }
+        if(sold>0){
+          tempListProduct.push({
+            _id:product._id,
+            name:product.name,
+            code: product.code,
+            image_url: product.image_url,
+            quantity: product.quantity,//con lai trong kho
+            sold:sold,//da ban
+            total: totalSold,//tong gia nhap
+          })
         }
       }
-      listProduct.push({
-        _id:product._id,
-        name:product.name,
-        code: product.code,
-        image_url: product.image_url,
-        quantity: product.quantity,//con lai trong kho
-        sold:sold,//da ban
-        total: total,//tong gia ban
-        imports,// Tong gia nhap
-      })
     }
+
     return responseSuccess({
       res,
       message: config.message.success,
-      data: {listProduct }
+      data: {listProduct,tempGraph,tempListProduct }
     });
 
   }catch (err) {
@@ -857,7 +948,7 @@ const  Create = async (req, res, next) => {
     reduce += result_discount.value;
     warning += result_discount.error;
     const discount = result_discount.doc;
-
+    
     if (!!warning) return res.status(400).send({ status: 400, msg: warning });
 
     const products = [];
@@ -928,6 +1019,7 @@ const  Create = async (req, res, next) => {
       address,
       products,
       discountCode,
+      discountPrice:result_discount.value,
       ship,
       total,
       discount: reduce,
