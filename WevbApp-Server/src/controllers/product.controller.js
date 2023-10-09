@@ -17,6 +17,8 @@ const { responseSuccess, responseError } = require('../utils/responseType');
 const { categoryController } = require('.');
 const { Supplier } = require('../models');
 const History = require('../models/history.model');
+const ERROR_PRODUCT_001 ='Lỗi không lưu đồng bộ với category' 
+const ERROR_PRODUCT_002 ='Không thể lưu lịch sử giá'
 
 const getAProduct = catchAsync(async (req, res, next) => {
   const _id = req.query._id;
@@ -277,7 +279,7 @@ const createProduct = catchAsync(async (req, res, next) => {
 
     supplierDoc.addProduct(product);
     supplierDoc = await supplierDoc.save();
-    if (!(await historyPrice.save())) throw Error('Không thể lưu lịch sử giá');
+    if (!(await historyPrice.save())) throw Error(ERROR_PRODUCT_002);
     if (!productDoc || !categoryDoc || !supplierDoc) throw Error('Fail');
 
     //Hoàn thành giao dịch và lưu vào csdl
@@ -292,7 +294,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     image.destroy(img_info.public_id);
     await session.abortTransaction();
     session.endSession();
-    return responseError({ res, statusCode: 500, message: 'Lỗi không lưu đồng bộ với category' });
+    return responseError({ res, statusCode: 500, message: ERROR_PRODUCT_001});
   }
 });
 const Update = async (req, res, next) => {

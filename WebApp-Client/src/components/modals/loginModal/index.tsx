@@ -17,6 +17,9 @@ import { USER_MODEL } from '~/models/user.model';
 import API from '~/services/axiosClient';
 import { ReturnResponse } from '~/services/response.interface';
 
+const VALIDATION_EMAIL_E001 = 'Vui lòng nhập số điện thoại hoặc email'
+const VALIDATION_PASSWORD_E001 = 'Vui lòng nhập mật khẩu'
+
 interface IResLogin {
   enable: boolean;
   user: USER_MODEL;
@@ -134,7 +137,7 @@ const ModalLogin = () => {
               <IconDeviceMobile size={20} />
               <input
                 {...register('username', {
-                  required: 'Vui lòng nhập số điện thoại hoặc email',
+                  required: VALIDATION_EMAIL_E001,
                 })}
                 type="text"
                 className="border-none outline-none bg-transparent flex-1"
@@ -212,7 +215,7 @@ const PasswordInput = (props) => {
         <IconKey size={20} />
         <input
           {...register('password', {
-            required: 'Vui lòng nhập mật khẩu',
+            required: VALIDATION_PASSWORD_E001,
             minLength: {
               value: 6,
               message: 'Nhập ít nhất 6 ký tự',

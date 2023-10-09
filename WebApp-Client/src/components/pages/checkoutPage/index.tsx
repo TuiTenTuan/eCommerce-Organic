@@ -18,6 +18,13 @@ import { calculateCartBill } from '~/services/request';
 import useAuth from '~/stores/auth';
 import PickLocation from './components/pickLocation';
 
+const MISSING_NAME ='Vui lòng nhập tên người nhận hàng'
+const MISSING_EMAIL='Vui lòng nhập email'
+const MISSING_PHONE='Vui lòng nhập số điện thoại'
+const MISSING_ADRESS='Thiếu đỉa chị'
+const MISSING_DETAILS_ADDRESS='Vui lòng nhập địa chỉ chi tiết'
+
+
 //      cart**: object[] - [{product: string, color: string, quantity: number}] - product = product._id
 //      address**: object - {province: string, district: string, address: string}
 //      discountCode: string
@@ -25,6 +32,7 @@ import PickLocation from './components/pickLocation';
 //      phone**: string
 //      name: string
 //      email:string
+
 
 const CheckoutPage = (props) => {
   const { userCartData } = props;
@@ -266,7 +274,7 @@ const CheckoutPage = (props) => {
                 {...register('name', {
                   required: {
                     value: true,
-                    message: 'Vui lòng nhập họ tên nhận hàng',
+                    message: MISSING_NAME,
                   },
                 })}
                 id="name"
@@ -288,7 +296,7 @@ const CheckoutPage = (props) => {
                 {...register('email', {
                   required: {
                     value: true,
-                    message: 'Vui lòng nhập email',
+                    message: MISSING_EMAIL,
                   },
                 })}
                 id="email"
@@ -312,7 +320,7 @@ const CheckoutPage = (props) => {
                 {...register('phone', {
                   required: {
                     value: true,
-                    message: 'Vui lòng nhập họ tên nhận hàng',
+                    message: MISSING_PHONE,
                   },
                   pattern: {
                     value: PHONE_REGEX,
@@ -354,7 +362,7 @@ const CheckoutPage = (props) => {
                 {...register('address', {
                   required: {
                     value: true,
-                    message: 'Vui lòng nhập địa chỉ giao hàng',
+                    message: MISSING_DETAILS_ADDRESS,
                   },
                 })}
                 id="address"
