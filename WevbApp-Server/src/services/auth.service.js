@@ -13,12 +13,14 @@ const { responseError } = require('../utils/responseType');
  * @param {string} code
  * @returns {Promise<User>}
  */
+
+const LOGIN_E001 = 'Incorrect email/phone or password';
 const loginUserWithEmailAndPassword = async (username, password, code) => {
   console.log('code', code);
   if (!code) {
     const user = await userService.getUserByEmailOrPhone(username);
     if (!user || !(await user.isPasswordMatch(password))) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email/phone or password');
+      throw new ApiError(httpStatus.UNAUTHORIZED, LOGIN_E001);
     }
     return user;
   } else {

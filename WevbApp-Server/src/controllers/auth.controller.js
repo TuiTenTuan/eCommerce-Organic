@@ -5,6 +5,8 @@ const { responseSuccess } = require('../utils/responseType');
 const config = require('../config/config');
 const { Account } = require('../models');
 
+
+const LOGIN_SUCCESS ='Login success'
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
@@ -40,7 +42,7 @@ const login = catchAsync(async (req, res) => {
   responseSuccess({
     res,
     statusCode: httpStatus.OK,
-    message: '',
+    message: LOGIN_SUCCESS,
     data: { user, tokens }
   });
 });
