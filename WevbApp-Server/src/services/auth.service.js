@@ -5,6 +5,7 @@ const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
 const { responseError } = require('../utils/responseType');
+const config = require('../config/config');
 
 /**
  * Login with username and password
@@ -20,7 +21,7 @@ const loginUserWithEmailAndPassword = async (username, password, code) => {
   if (!code) {
     const user = await userService.getUserByEmailOrPhone(username);
     if (!user || !(await user.isPasswordMatch(password))) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, LOGIN_E001);
+      throw new ApiError(httpStatus.UNAUTHORIZED, config.message.LOGIN_E001);
     }
     return user;
   } else {
