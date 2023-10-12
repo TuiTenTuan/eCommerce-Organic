@@ -42,7 +42,7 @@ const login = catchAsync(async (req, res) => {
   responseSuccess({
     res,
     statusCode: httpStatus.OK,
-    message: LOGIN_SUCCESS,
+    message: config.message.LOGIN_SUCCESS,
     data: { user, tokens }
   });
 });
