@@ -458,14 +458,14 @@ const ProductRow = (props: any) => {
         >
           <span>History Price</span>
         </a>
-        <a
+        {/* <a
           onClick={() => {
             handleImportDiscount(item._id);
           }}
           className="bg-orange-500 p-2 text-white hover:shadow-lg text-xs font-thin cursor-pointer"
         >
           <span>Discount</span>
-        </a>
+        </a> */}
         <a
           onClick={() => {
             handleUpdateProduct(item?._id);

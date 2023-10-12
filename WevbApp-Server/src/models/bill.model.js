@@ -17,6 +17,16 @@ const billSchema = mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId, required: [true, 'Product id in bill cannot be empty.'],
             ref: 'Product'
         },
+        imports:[{
+            quantity: {
+                type: Number,
+                required: [true, 'imports quantity in bill cannot be empty.'],
+            },
+            price: {
+                type: Number,
+                required: [true, 'imports price in bill cannot be empty.'],
+            },
+        }],
         color: {
             type: String,
             required: [true, 'Product color in bill cannot be empty.'],
@@ -49,7 +59,7 @@ const billSchema = mongoose.Schema(
             default : Date.now()
         }
     }],
-
+    discountPrice: {type: Number, required: true},//  số tiền được giảm giá khi sử dụng mã discount
     refund: {type: Boolean, default: false},
     paid: {type: Boolean, default: false},
     ship: {type: Number, required: true}, 

@@ -63,12 +63,22 @@ export default function ModalHistoryImport({
                   </th>
                   <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
                     <div className="flex items-center justify-center">
+                      EXP
+                    </div>
+                  </th>
+                  <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
+                    <div className="flex items-center justify-center">
                       Price
                     </div>
                   </th>
                   <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
                     <div className="flex items-center justify-center">
                       Quantity
+                    </div>
+                  </th>
+                  <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
+                    <div className="flex items-center justify-center">
+                      Sold
                     </div>
                   </th>
                 </tr>
@@ -103,11 +113,13 @@ const ImportRow = (props: any) => {
       <td className="p-2 border-r">{item?.admin?.name}</td>
       <td className="p-2 border-r">{item?.admin?.role}</td>
       <td className="p-2 border-r">{formatDate2(item?.createdAt)}</td>
+      <td className="p-2 border-r">{item?.products[0]?.exp ? formatDate2(item?.products[0]?.exp ) : ''}</td>
       {/* <td className="p-2 border-r">{item?.createdAt}</td> */}
       <td className="p-2 border-r ">
         {moneyFormater(item?.products[0]?.price)}
       </td>
       <td className="p-2 border-r">{item?.products[0]?.quantity}</td>
+      <td className="p-2 border-r">{item?.products[0]?.sold ? item?.products[0]?.sold : 0 }</td>
     </tr>
   );
 };

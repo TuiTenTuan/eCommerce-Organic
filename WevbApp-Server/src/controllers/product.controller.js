@@ -17,6 +17,8 @@ const { responseSuccess, responseError } = require('../utils/responseType');
 const { categoryController } = require('.');
 const { Supplier } = require('../models');
 const History = require('../models/history.model');
+const ERROR_PRODUCT_001 ='Lỗi không lưu đồng bộ với category' 
+const ERROR_PRODUCT_002 ='Không thể lưu lịch sử giá'
 
 const getAProduct = catchAsync(async (req, res, next) => {
   const _id = req.query._id;
@@ -277,7 +279,7 @@ const createProduct = catchAsync(async (req, res, next) => {
 
     supplierDoc.addProduct(product);
     supplierDoc = await supplierDoc.save();
-    if (!(await historyPrice.save())) throw Error('Không thể lưu lịch sử giá');
+    if (!(await historyPrice.save())) throw Error(ERROR_PRODUCT_002);
     if (!productDoc || !categoryDoc || !supplierDoc) throw Error('Fail');
 
     //Hoàn thành giao dịch và lưu vào csdl
@@ -292,7 +294,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     image.destroy(img_info.public_id);
     await session.abortTransaction();
     session.endSession();
-    return responseError({ res, statusCode: 500, message: 'Lỗi không lưu đồng bộ với category' });
+    return responseError({ res, statusCode: 500, message: ERROR_PRODUCT_001});
   }
 });
 const Update = async (req, res, next) => {
@@ -487,7 +489,8 @@ const ValidCart = async (req, res, next) => {
         // warning += `Sản phẩm ${doc.name} không có màu ${unit.color}. `;
         continue;
       }
-
+      let today = new Date();
+      let listImports = await Import.find({ 'products.product': doc._id },{"products.soldOut":false},{'products.exp':{$lte: today}}).sort({"products.exp":1});
       const doc_color = doc.colors[colorIndex];
       // console.log("doc_color")
       if (doc_color.quantity < unit.quantity) {
@@ -499,6 +502,7 @@ const ValidCart = async (req, res, next) => {
       newCart.push(unit);
       cartItems.push({
         product: doc._id,
+        listImports,
         name: doc.name,
         code: doc.code,
         category: doc.category,
@@ -537,11 +541,11 @@ const Imports = async (req, res, next) => {
     const success = [];
     const failure = [];
     for (let i = 0; i < data.length; i++) {
-      const { code, color, quantity, price } = data[i];
+      const { code, color, quantity, price, exp } = data[i];
       // console.log("data",data[i])
       const doc = await Product.findOne({ code }).select('colors').exec();
 
-      if (!doc) failure.push({ code, quantity, price: Number(price) });
+      if (!doc) failure.push({ code, quantity, price: Number(price)});
       else {
         var flag = false;
         for (let colordoc of doc.colors) {
@@ -554,7 +558,7 @@ const Imports = async (req, res, next) => {
             break;
           }
         }
-        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color });
+        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color, sold:0, soldOut:false, exp});
         else failure.push(data[i]);
       }
     }
