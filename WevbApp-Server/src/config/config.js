@@ -88,7 +88,11 @@ module.exports = {
     errOutOfSaler: 'Lỗi, không có đủ saler. ',
     errSaveImage: 'Lỗi, không thể save ảnh. ',
     errProductValid: 'Danh muc da duoc them vao san pham',
-    waitVerifyTimeout: 240
+    waitVerifyTimeout: 240,
+    ERROR_PRODUCT_001 :'Lỗi không lưu đồng bộ với category',
+    ERROR_PRODUCT_002 :'Không thể lưu lịch sử giá',
+    LOGIN_SUCCESS :'Login success',
+    LOGIN_E001 : 'Incorrect email/phone or password',
   },
   product_str: 'name code category image_url price sale toSStal_rate enable sold colors',
   monthlong: 2592000000, //1000*60*60*24*30,

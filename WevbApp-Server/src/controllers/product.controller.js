@@ -279,7 +279,7 @@ const createProduct = catchAsync(async (req, res, next) => {
 
     supplierDoc.addProduct(product);
     supplierDoc = await supplierDoc.save();
-    if (!(await historyPrice.save())) throw Error(ERROR_PRODUCT_002);
+    if (!(await historyPrice.save())) throw Error(config.message.ERROR_PRODUCT_002);
     if (!productDoc || !categoryDoc || !supplierDoc) throw Error('Fail');
 
     //Hoàn thành giao dịch và lưu vào csdl
@@ -294,7 +294,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     image.destroy(img_info.public_id);
     await session.abortTransaction();
     session.endSession();
-    return responseError({ res, statusCode: 500, message: ERROR_PRODUCT_001});
+    return responseError({ res, statusCode: 500, message: config.message.ERROR_PRODUCT_001});
   }
 });
 const Update = async (req, res, next) => {
