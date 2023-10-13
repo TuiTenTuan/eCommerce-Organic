@@ -1,4 +1,4 @@
-// import { useRouter } from 'next/router';
+//  import { useRouter } from 'next/router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -18,12 +18,12 @@ import { calculateCartBill } from '~/services/request';
 import useAuth from '~/stores/auth';
 import PickLocation from './components/pickLocation';
 
-const MISSING_NAME ='Vui lòng nhập tên người nhận hàng'
-const MISSING_EMAIL='Vui lòng nhập email'
-const MISSING_PHONE='Vui lòng nhập số điện thoại'
-const MISSING_ADRESS='Thiếu đỉa chị'
-const MISSING_DETAILS_ADDRESS='Vui lòng nhập địa chỉ chi tiết'
-
+const MISSING_NAME = 'Vui lòng nhập tên người nhận hàng';
+const MISSING_EMAIL = 'Vui lòng nhập email';
+const MISSING_PHONE = 'Vui lòng nhập số điện thoại';
+const MISSING_ADRESS = 'Thiếu đỉa chị';
+const MISSING_DETAILS_ADDRESS = 'Vui lòng nhập địa chỉ chi tiết';
+const CHECKOUT_ERROR = 'Có lỗi thanh toán: ';
 
 //      cart**: object[] - [{product: string, color: string, quantity: number}] - product = product._id
 //      address**: object - {province: string, district: string, address: string}
@@ -32,7 +32,6 @@ const MISSING_DETAILS_ADDRESS='Vui lòng nhập địa chỉ chi tiết'
 //      phone**: string
 //      name: string
 //      email:string
-
 
 const CheckoutPage = (props) => {
   const { userCartData } = props;
@@ -245,7 +244,7 @@ const CheckoutPage = (props) => {
 
       clearCart();
     } catch (error) {
-      toast.error('Có lỗi thanh toán: ' + error.message); // Hiển thị thông báo lỗi có thông điệp từ đối tượng error
+      toast.error(CHECKOUT_ERROR + error.message); // Hiển thị thông báo lỗi có thông điệp từ đối tượng error
       setLoading(false);
       console.log('err,', error);
     }
