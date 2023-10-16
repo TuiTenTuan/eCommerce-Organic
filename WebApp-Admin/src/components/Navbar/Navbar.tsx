@@ -36,8 +36,7 @@ const Navbar = (props: Props) => {
   useEffect(() => {
     (async () =>{
       const result  = await productApi.getNotifications()
-      let temp = result.notifications.map((item:any) => !item.status).length
-      setUnSeen(temp)
+      setUnSeen(result.notifications.map((item:any) => !item.status).length)
       setNotifications(result.notifications)
       const handleClickOutside = (event: any) => {
         if (
