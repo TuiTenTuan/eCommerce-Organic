@@ -17,9 +17,11 @@ const { responseSuccess, responseError } = require('../utils/responseType');
 const { categoryController } = require('.');
 const { Supplier } = require('../models');
 const History = require('../models/history.model');
+const Notification = require('../models/notification.model');
 const ERROR_PRODUCT_001 ='Lỗi không lưu đồng bộ với category' 
 const ERROR_PRODUCT_002 ='Không thể lưu lịch sử giá'
-
+const expNotification = 7
+let isCheckExp = false
 const getAProduct = catchAsync(async (req, res, next) => {
   const _id = req.query._id;
   const code = req.query.code;
@@ -82,6 +84,9 @@ const ListColor = async (req, res, next) => {
 };
 
 const List = async (req, res, next) => {
+  if(!isCheckExp){
+    checkExp();
+  }
   try {
     const category = req.query.category;
     let specs = req.query.specs; // {name: value} "ram" : "1gb;2gb"
@@ -863,6 +868,55 @@ const CommingSoon = async (req, res, next) => {
     return res.status(500).send({ msg: config.err500 });
   }
 };
+
+function checkExp(){
+  isCheckExp =true
+  let today = new Date();
+  timeToday = today.getTime();
+  let tempDate = new Date();
+  let tempTime = 0;
+  let listProduct = Product.find({});
+  let listNotifications = Notification.find({$and:[
+    {createdAt: { $gte: today}},
+    {"type":true}
+  ]})
+  for (let i = 0; i < listProduct.length; i++){
+    let createNotification = true
+    for (let index = 0; index < listNotifications.length; index++) {
+      if (!!listNotifications[index].type && listNotifications[index].product.equals(listProduct[i]._id)){
+        createNotification =false
+        break
+      } 
+    }
+    if(createNotification){
+      let listImport = Import.find({
+        $and:[
+          {"products.product":listProduct[i]._id},
+          {"products.sold":false},
+          {"products.exp":{$gt:today}}
+        ]
+      });
+      let quantityExp = 0
+      for (let j = 0; j < listImport.length; j++){
+        tempDate = new Date(listImport[j].products[0].exp)
+        tempTime = tempDate.getTime();
+        if(tempTime-timeToday>expNotification*24*60*60*1000){
+          quantityExp += (listImport[j].products[0].quantity - listImport[j].products[0].sold)
+        }
+      }
+      if (quantityExp>0){
+        let notification =  new Notification({
+          product:listProduct[i]._id,
+          description:("Sản phẩm " +listProduct[i].name + " có "+ quantityExp + " sắp hết hạn"),
+          status:false,
+          type:true
+        })
+        notification.save()
+      }
+    }
+  }
+}
+
 
 // const deleteCategory = catchAsync(async (req, res, next) => {
 //   await categoryService.deleteCategoryBySlug(req.params.slug);
