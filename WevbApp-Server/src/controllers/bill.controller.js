@@ -14,6 +14,9 @@ const crypto = require('crypto');
 const axios = require('axios');
 const { date } = require('joi');
 const e = require('express');
+const Notification = require('../models/notification.model');
+
+const quantityNotification = 10;
 
 // const Revenue = async (req, res, next) => {
 //   try {
@@ -1012,6 +1015,7 @@ const  Create = async (req, res, next) => {
       products.push({ product: i.product, imports, color: i.color, quantity: i.quantity, price: i.price, sale: i.sale })
     }
     );
+    checkQuantity(products)
     const status = [{ statusTimeline: 'Ordered', time: Date.now() }];
     const bill = new Bill({
       account: account._id,
@@ -1419,6 +1423,39 @@ const CheckVNPay = async (req, res, next) => {
     console.log(err);
   }
 };
+
+const checkQuantity = async(products) =>{
+  ids = products.map(i=> i.product)
+  let listProduct = await Product.find({"_id":{$in:ids}})
+  today = new Date();
+  let listNotifications = await Notification.find({$and:[
+      {createdAt: { $gte: today}},
+      {"type":false}
+    ]
+  })
+  for(let i = 0; i < listProduct.length; i++) {
+    let createNotification = true
+    for (let index = 0; index < listNotifications.length; index++) {
+      if (!listNotifications[index].type && listNotifications[index].product.equals(listProduct[i]._id)){
+        createNotification =false
+        break
+      } 
+    }
+    if(createNotification && listProduct[i]?.colors[0]?.quantity<quantityNotification){
+      let notification = new Notification({
+        product:listProduct[i]?._id,
+        description: ("Sản phẩm "+ listProduct[i]?.name + "số lượng chỉ còn " + listProduct[i]?.color[0]?.quantity ),
+        status:false,
+        type:false,
+      })
+      try{
+        notification.save()
+      }catch(err){
+        throw err
+      }
+    }
+  }
+}
 module.exports = {
   shipCalculate,
   Verity,
