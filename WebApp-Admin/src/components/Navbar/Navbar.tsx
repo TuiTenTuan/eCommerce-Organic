@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./style.css";
 import { Link, NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux/es/exports";
@@ -15,6 +15,37 @@ const Navbar = (props: Props) => {
     localStorage.removeItem("token");
     window.location.pathname = "";
   };
+
+  const [visible, setVisible] = useState(false);
+  const notificationRef = useRef<HTMLInputElement>(null);
+  const hanldeOpenNoti = () => {
+    if (visible === false) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+  };
+
+  const hanldeCloseNoti = () => {
+    setVisible(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setVisible(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  });
 
   return (
     <div className="bg-blue-500 border-b">
@@ -215,7 +246,61 @@ const Navbar = (props: Props) => {
               </NavLink>
             </li>
           </ul>
-          <div className="relative">
+          <div className="relative flex">
+            <div onClick={hanldeOpenNoti} ref={notificationRef}>
+              <ul className="notification-drop mr-3">
+                <li className="item">
+                  <svg
+                    height="30px"
+                    id="Layer_1"
+                    // style="enable-background:new 0 0 512 512;"
+                    version="1.1"
+                    viewBox="0 0 512 512"
+                    width="30px"
+                  >
+                    <g>
+                      <path d="M381.7,225.9c0-97.6-52.5-130.8-101.6-138.2c0-0.5,0.1-1,0.1-1.6c0-12.3-10.9-22.1-24.2-22.1c-13.3,0-23.8,9.8-23.8,22.1   c0,0.6,0,1.1,0.1,1.6c-49.2,7.5-102,40.8-102,138.4c0,113.8-28.3,126-66.3,158h384C410.2,352,381.7,339.7,381.7,225.9z" />
+                      <path d="M256.2,448c26.8,0,48.8-19.9,51.7-43H204.5C207.3,428.1,229.4,448,256.2,448z" />
+                    </g>
+                  </svg>
+                  <span className="btn__badge pulse-button ">4</span>
+                  {visible && (
+                    <ul>
+                      <li className="flex">
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                          alt=""
+                          className="img-item h-full rounded-[50%]"
+                        />
+                        <div>
+                          <p>
+                            laksdlaksdl;ka;ldka;lsdka;l;lkkjadsnk werwr werwer
+                            werwerwr werwr
+                          </p>
+                          <p>asdadad</p>
+                        </div>
+                      </li>
+                      <li className="flex">
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                          alt=""
+                          className="img-item h-full rounded-[50%]"
+                        />
+                        Second Item
+                      </li>
+                      <li className="flex">
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                          alt=""
+                          className="img-item h-full rounded-[50%]"
+                        />
+                        Third Item
+                      </li>
+                    </ul>
+                  )}
+                </li>
+              </ul>
+            </div>
             <button className="w-10 h-10 avatar">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
@@ -256,7 +341,61 @@ const Navbar = (props: Props) => {
             </button>
           </div>
           <ul className="hidden absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex  lg:items-center lg:space-x-6 ml-[100px] w-[700px]"></ul>
-          <div className="relative">
+          <div className="relative flex">
+            <div onClick={hanldeOpenNoti} ref={notificationRef}>
+              <ul className="notification-drop mr-3">
+                <li className="item">
+                  <svg
+                    height="30px"
+                    id="Layer_1"
+                    // style="enable-background:new 0 0 512 512;"
+                    version="1.1"
+                    viewBox="0 0 512 512"
+                    width="30px"
+                  >
+                    <g>
+                      <path d="M381.7,225.9c0-97.6-52.5-130.8-101.6-138.2c0-0.5,0.1-1,0.1-1.6c0-12.3-10.9-22.1-24.2-22.1c-13.3,0-23.8,9.8-23.8,22.1   c0,0.6,0,1.1,0.1,1.6c-49.2,7.5-102,40.8-102,138.4c0,113.8-28.3,126-66.3,158h384C410.2,352,381.7,339.7,381.7,225.9z" />
+                      <path d="M256.2,448c26.8,0,48.8-19.9,51.7-43H204.5C207.3,428.1,229.4,448,256.2,448z" />
+                    </g>
+                  </svg>
+                  <span className="btn__badge pulse-button ">4</span>
+                  {visible && (
+                    <ul>
+                      <li className="flex">
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                          alt=""
+                          className="img-item h-full rounded-[50%]"
+                        />
+                        <div>
+                          <p>
+                            laksdlaksdl;ka;ldka;lsdka;l;lkkjadsnk werwr werwer
+                            werwerwr werwr
+                          </p>
+                          <p>asdadad</p>
+                        </div>
+                      </li>
+                      <li className="flex">
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                          alt=""
+                          className="img-item h-full rounded-[50%]"
+                        />
+                        Second Item
+                      </li>
+                      <li className="flex">
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                          alt=""
+                          className="img-item h-full rounded-[50%]"
+                        />
+                        Third Item
+                      </li>
+                    </ul>
+                  )}
+                </li>
+              </ul>
+            </div>
             <button className="w-10 h-10 avatar">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
