@@ -84,9 +84,8 @@ const ListColor = async (req, res, next) => {
 };
 
 const List = async (req, res, next) => {
-  if(!isCheckExp){
-    checkExp();
-  }
+  await checkExp();
+  
   try {
     const category = req.query.category;
     let specs = req.query.specs; // {name: value} "ram" : "1gb;2gb"
@@ -869,14 +868,32 @@ const CommingSoon = async (req, res, next) => {
   }
 };
 
-function checkExp(){
+const Notifications = async (req,res)=>{
+  try{
+    const notifications = await Notification.find({})
+    return res.status(200).send({
+      success:true,
+      notifications
+    })
+  }catch(err){
+    return res.status(500).json({
+      success:false,
+      msg: "error: " + err.message
+    })
+  }
+}
+
+async function checkExp(){
   isCheckExp =true
   let today = new Date();
+  today.setHours(0)
+  today.setMinutes(0)
+  today.setSeconds(0)
   timeToday = today.getTime();
   let tempDate = new Date();
   let tempTime = 0;
-  let listProduct = Product.find({});
-  let listNotifications = Notification.find({$and:[
+  let listProduct =await Product.find({});
+  let listNotifications = await Notification.find({$and:[
     {createdAt: { $gte: today}},
     {"type":true}
   ]})
@@ -889,7 +906,7 @@ function checkExp(){
       } 
     }
     if(createNotification){
-      let listImport = Import.find({
+      let listImport = await Import.find({
         $and:[
           {"products.product":listProduct[i]._id},
           {"products.sold":false},
@@ -938,5 +955,6 @@ module.exports = {
   ReadComments,
   Hint,
   ListImports,
-  ListHistoryPriceByIdProduct
+  ListHistoryPriceByIdProduct,
+  Notifications,
 };

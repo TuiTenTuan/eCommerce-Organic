@@ -20,5 +20,6 @@ router.route('/update').post(productController.Update);
 router.route('/hint').post(productController.Hint);
 router.route('/listImport').post(auth(), productController.ListImports);
 router.route('/listHistoryPrice').post(productController.ListHistoryPriceByIdProduct);
+router.route('/notifications').get(productController.Notifications);
 
 module.exports = router;
