@@ -13,8 +13,13 @@ const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/api');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
+const {checkNotify} = require('./controllers/product.controller')
 
 const app = express();
+checkNotify()
+setInterval(() => {
+  checkNotify();
+}, 24*60*60*1000);
 
 if (config.env !== 'test') {
   app.use(morgan.successHandler);
@@ -60,6 +65,7 @@ app.get('/', (req, res) => {
 
 // api routes
 app.use('/api', routes);
+
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
