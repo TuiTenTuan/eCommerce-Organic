@@ -5,10 +5,13 @@ import { useDispatch, useSelector } from "react-redux/es/exports";
 import { updateAuthStatus } from "../../Redux/authSlice";
 import logo from "../../Images/favicon.svg";
 import { RootState } from "../../Redux/store";
+import productApi from "../../apis/product/product";
 type Props = {};
 
 const Navbar = (props: Props) => {
+  const [notifications, setNotifications] = useState<Array<any>>([]);
   const role = useSelector((state: RootState) => state.auth.role);
+  const [unSeen, setUnSeen] = useState(Number);
   const dispatch = useDispatch();
   const handleLogout = () => {
     dispatch(updateAuthStatus(false));
@@ -31,21 +34,28 @@ const Navbar = (props: Props) => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
-        setVisible(false);
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  });
+    (async () =>{
+      const result  = await productApi.getNotifications()
+      let temp = 0;
+      result.notifications.forEach((item:any) => !item.status? temp+=1 : temp)
+      setUnSeen(temp);
+      setNotifications(result.notifications)
+      const handleClickOutside = (event: any) => {
+        if (
+          notificationRef.current &&
+          !notificationRef.current.contains(event.target)
+        ) {
+          setVisible(false);
+        }
+      };
+  
+      document.addEventListener("click", handleClickOutside);
+  
+      return () => {
+        document.removeEventListener("click", handleClickOutside);
+      };
+    })();
+  },[]);
 
   return (
     <div className="bg-blue-500 border-b">
@@ -263,41 +273,49 @@ const Navbar = (props: Props) => {
                       <path d="M256.2,448c26.8,0,48.8-19.9,51.7-43H204.5C207.3,428.1,229.4,448,256.2,448z" />
                     </g>
                   </svg>
-                  <span className="btn__badge pulse-button ">4</span>
+                  <span className="btn__badge pulse-button ">{unSeen}</span>
+         
                   {visible && (
+                    // <ul>
+                    //   <li className="flex">
+                    //     <img
+                    //       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                    //       alt=""
+                    //       className="img-item h-full rounded-[50%]"
+                    //     />
+                    //     clm
+                    //   </li>
+                    //   <li className="flex">
+                    //     <img
+                    //       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                    //       alt=""
+                    //       className="img-item h-full rounded-[50%]"
+                    //     />
+                    //     Second Item
+                    //   </li>
+                    //   <li className="flex">
+                    //     <img
+                    //       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                    //       alt=""
+                    //       className="img-item h-full rounded-[50%]"
+                    //     />
+                    //     Third Item
+                    //   </li>
+                    // </ul>
                     <ul>
-                      <li className="flex">
+                   {notifications.map((item:any,index:number)=>(
+                        <li className="flex">
                         <img
                           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
                           alt=""
                           className="img-item h-full rounded-[50%]"
                         />
-                        <div>
-                          <p>
-                            laksdlaksdl;ka;ldka;lsdka;l;lkkjadsnk werwr werwer
-                            werwerwr werwr
-                          </p>
-                          <p>asdadad</p>
-                        </div>
+                        {item.description}
                       </li>
-                      <li className="flex">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                          alt=""
-                          className="img-item h-full rounded-[50%]"
-                        />
-                        Second Item
-                      </li>
-                      <li className="flex">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                          alt=""
-                          className="img-item h-full rounded-[50%]"
-                        />
-                        Third Item
-                      </li>
+                    ))}
                     </ul>
                   )}
+                
                 </li>
               </ul>
             </div>
@@ -359,40 +377,6 @@ const Navbar = (props: Props) => {
                     </g>
                   </svg>
                   <span className="btn__badge pulse-button ">4</span>
-                  {visible && (
-                    <ul>
-                      <li className="flex">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                          alt=""
-                          className="img-item h-full rounded-[50%]"
-                        />
-                        <div>
-                          <p>
-                            laksdlaksdl;ka;ldka;lsdka;l;lkkjadsnk werwr werwer
-                            werwerwr werwr
-                          </p>
-                          <p>asdadad</p>
-                        </div>
-                      </li>
-                      <li className="flex">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                          alt=""
-                          className="img-item h-full rounded-[50%]"
-                        />
-                        Second Item
-                      </li>
-                      <li className="flex">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                          alt=""
-                          className="img-item h-full rounded-[50%]"
-                        />
-                        Third Item
-                      </li>
-                    </ul>
-                  )}
                 </li>
               </ul>
             </div>
