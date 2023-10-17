@@ -21,7 +21,8 @@ const Notification = require('../models/notification.model');
 const ERROR_PRODUCT_001 ='Lỗi không lưu đồng bộ với category' 
 const ERROR_PRODUCT_002 ='Không thể lưu lịch sử giá'
 const expNotification = 7
-let isCheckExp = false
+const quantityNotification = 30;
+let isCheckNotify = false
 const getAProduct = catchAsync(async (req, res, next) => {
   const _id = req.query._id;
   const code = req.query.code;
@@ -84,7 +85,7 @@ const ListColor = async (req, res, next) => {
 };
 
 const List = async (req, res, next) => {
-  await checkExp();
+  // await checkNotify();
   
   try {
     const category = req.query.category;
@@ -883,8 +884,7 @@ const Notifications = async (req,res)=>{
   }
 }
 
-async function checkExp(){
-  isCheckExp =true
+async function checkNotify(){
   let today = new Date();
   today.setHours(0)
   today.setMinutes(0)
@@ -893,19 +893,19 @@ async function checkExp(){
   let tempDate = new Date();
   let tempTime = 0;
   let listProduct =await Product.find({});
-  let listNotifications = await Notification.find({$and:[
-    {createdAt: { $gte: today}},
-    {"type":true}
-  ]})
+  let listNotifications = await Notification.find( {createdAt: { $gte: today}})
   for (let i = 0; i < listProduct.length; i++){
-    let createNotification = true
+    let createNotification1 = true
+    let createNotification2 = true
     for (let index = 0; index < listNotifications.length; index++) {
-      if (!!listNotifications[index].type && listNotifications[index].product.equals(listProduct[i]._id)){
-        createNotification =false
-        break
+      if (!!listNotifications[index].type &&  createNotification1 && listNotifications[index].product.equals(listProduct[i]._id)){
+        createNotification1 =false
       } 
+      if(!listNotifications[index].type &&  createNotification2 && listNotifications[index].product.equals(listProduct[i]._id)){
+        createNotification2 = false
+      }
     }
-    if(createNotification){
+    if(createNotification1){
       let listImport = await Import.find({
         $and:[
           {"products.product":listProduct[i]._id},
@@ -931,9 +931,36 @@ async function checkExp(){
         notification.save()
       }
     }
+    if (createNotification2 && listProduct[i]?.colors[0]?.quantity<quantityNotification){
+      try{
+        let notification = new Notification({
+          product:listProduct[i]?._id,
+          description: ("Sản phẩm "+ listProduct[i]?.name + "số lượng chỉ còn " + listProduct[i]?.colors[0]?.quantity ),
+          status:false,
+          type:false,
+        })
+        notification.save()
+      }catch(err){
+        throw err
+      }
+    }
   }
 }
-
+const seenNotify = async (req,res) => {
+  const id = req.params.id
+  try{
+    await Notification.updateOne(id,{$set:{status:true}})
+    return res.status(200).json({
+      success: true,
+      msg:"Đã xem "
+    })
+  }catch(err){
+    return res.status(500).json({
+      success:false,
+      msg:"error: " + err.message
+    })
+  }
+}
 
 // const deleteCategory = catchAsync(async (req, res, next) => {
 //   await categoryService.deleteCategoryBySlug(req.params.slug);
@@ -957,4 +984,6 @@ module.exports = {
   ListImports,
   ListHistoryPriceByIdProduct,
   Notifications,
+  checkNotify,
+  seenNotify
 };

@@ -1015,7 +1015,7 @@ const  Create = async (req, res, next) => {
       products.push({ product: i.product, imports, color: i.color, quantity: i.quantity, price: i.price, sale: i.sale })
     }
     );
-    checkQuantity(products)
+    // checkQuantity(products)
     const status = [{ statusTimeline: 'Ordered', time: Date.now() }];
     const bill = new Bill({
       account: account._id,
