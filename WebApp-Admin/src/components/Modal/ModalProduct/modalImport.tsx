@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import productApi from "../../../apis/product/product";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import authApi from "../../../apis/auth/authApi";
-
+import { ToastContainer, toast } from 'react-toastify';
+const currentDate = new Date()
 export default function ModalImport({
   setOpenModalImport,
   _id,
@@ -30,6 +31,27 @@ export default function ModalImport({
 
   const submit = async (data: any, e: any) => {
     e.preventDefault();
+    const selectedDate = new Date(data.exp)
+    if(selectedDate.getTime()<currentDate.getTime()){
+      toast.error('Ngày phải lớn hơn ngày hiện tại', {
+        position: 'top-center',
+        autoClose: 1000, 
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return
+    }
+    if(selectedDate.getDate()-currentDate.getDate() <7){
+      toast.error('Ngày phải lớn hơn ngày hiện tại 7 ngày', {
+        position: 'top-center',
+        autoClose: 1000, 
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return
+    }
     const payload = {
       data: [
         {
@@ -133,6 +155,7 @@ export default function ModalImport({
                   <div className="flex-1 text-end">Exp: </div>
                   <input
                     {...register("exp")}
+                    required
                     className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="username"
                     type="Date"
