@@ -28,18 +28,23 @@ const Navbar = (props: Props) => {
       setVisible(false);
     }
   };
+  const handleSeenNotify = async (id: any) => {
+    await productApi.seenNotify(id);
+  };
 
   const hanldeCloseNoti = () => {
     setVisible(false);
   };
 
   useEffect(() => {
-    (async () =>{
-      const result  = await productApi.getNotifications()
+    (async () => {
+      const result = await productApi.getNotifications();
       let temp = 0;
-      result.notifications.forEach((item:any) => !item.status? temp+=1 : temp)
+      result.notifications.forEach((item: any) =>
+        !item.status ? (temp += 1) : temp
+      );
       setUnSeen(temp);
-      setNotifications(result.notifications)
+      setNotifications(result.notifications);
       const handleClickOutside = (event: any) => {
         if (
           notificationRef.current &&
@@ -48,14 +53,14 @@ const Navbar = (props: Props) => {
           setVisible(false);
         }
       };
-  
+
       document.addEventListener("click", handleClickOutside);
-  
+
       return () => {
         document.removeEventListener("click", handleClickOutside);
       };
     })();
-  },[]);
+  }, []);
 
   return (
     <div className="bg-blue-500 border-b">
@@ -274,7 +279,7 @@ const Navbar = (props: Props) => {
                     </g>
                   </svg>
                   <span className="btn__badge pulse-button ">{unSeen}</span>
-         
+
                   {visible && (
                     // <ul>
                     //   <li className="flex">
@@ -303,19 +308,25 @@ const Navbar = (props: Props) => {
                     //   </li>
                     // </ul>
                     <ul>
-                   {notifications.map((item:any,index:number)=>(
-                        <li className="flex">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                          alt=""
-                          className="img-item h-full rounded-[50%]"
-                        />
-                        {item.description}
-                      </li>
-                    ))}
+                      {notifications.map((item: any, index: number) => (
+                        <NavLink
+                          to="/productlist"
+                          onClick={() => {
+                            handleSeenNotify(item.id);
+                          }}
+                        >
+                          <li className="flex">
+                            <img
+                              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                              alt=""
+                              className="img-item h-full rounded-[50%]"
+                            />
+                            {item.description}
+                          </li>
+                        </NavLink>
+                      ))}
                     </ul>
                   )}
-                
                 </li>
               </ul>
             </div>

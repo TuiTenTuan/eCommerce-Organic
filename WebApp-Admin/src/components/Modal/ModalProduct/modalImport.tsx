@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import productApi from "../../../apis/product/product";
 import { notifyError, notifySuccess } from "../../../utils/notify";
 import authApi from "../../../apis/auth/authApi";
-import { ToastContainer, toast } from 'react-toastify';
-const currentDate = new Date()
+import { ToastContainer, toast } from "react-toastify";
+
 export default function ModalImport({
   setOpenModalImport,
   _id,
@@ -31,26 +31,30 @@ export default function ModalImport({
 
   const submit = async (data: any, e: any) => {
     e.preventDefault();
-    const selectedDate = new Date(data.exp)
-    if(selectedDate.getTime()<currentDate.getTime()){
-      toast.error('Ngày phải lớn hơn ngày hiện tại', {
-        position: 'top-center',
-        autoClose: 1000, 
+    const selectedDate = new Date(data.exp).getTime();
+    const currentDate = new Date().getTime();
+    if (selectedDate < currentDate) {
+      toast.error("Ngày phải lớn hơn ngày hiện tại", {
+        position: "top-center",
+        autoClose: 1000,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
       });
-      return
+      return;
     }
-    if(selectedDate.getDate()-currentDate.getDate() <7){
-      toast.error('Ngày phải lớn hơn ngày hiện tại 7 ngày', {
-        position: 'top-center',
-        autoClose: 1000, 
+    if (
+      selectedDate / 1000 / 60 / 60 / 24 - currentDate / 1000 / 60 / 60 / 24 <
+      7
+    ) {
+      toast.error("Ngày phải lớn hơn ngày hiện tại 7 ngày", {
+        position: "top-center",
+        autoClose: 1000,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
       });
-      return
+      return;
     }
     const payload = {
       data: [
@@ -59,7 +63,7 @@ export default function ModalImport({
           color: nameProduct,
           quantity: Number(data.quantity),
           price: Number(data.price),
-          exp: data.exp
+          exp: data.exp,
         },
       ],
     };
