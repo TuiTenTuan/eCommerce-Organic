@@ -22,5 +22,7 @@ router.route('/listImport').post(auth(), productController.ListImports);
 router.route('/listHistoryPrice').post(productController.ListHistoryPriceByIdProduct);
 router.route('/notifications').get(productController.Notifications);
 router.route('/seenNotify/:id').get(productController.seenNotify)
+router.route('/seenAllNotify').get(productController.seenAllnotify)
+router.route('/deleteAllNotify').get(productController.deleteAllNotify)
 
 module.exports = router;

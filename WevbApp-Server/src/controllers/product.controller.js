@@ -18,6 +18,7 @@ const { categoryController } = require('.');
 const { Supplier } = require('../models');
 const History = require('../models/history.model');
 const Notification = require('../models/notification.model');
+const { objectId } = require('../validations/custom.validation');
 const ERROR_PRODUCT_001 = 'Lỗi không lưu đồng bộ với category';
 const ERROR_PRODUCT_002 = 'Không thể lưu lịch sử giá';
 const expNotification = 7;
@@ -940,7 +941,8 @@ async function checkNotify() {
       if (quantityExp > 0) {
         let notification = new Notification({
           product: listProduct[i]._id,
-          description: 'Sản phẩm ' + listProduct[i].name + ' có ' + quantityExp + ' sắp hết hạn',
+          description: 'Sản phẩm ' + listProduct[i].name + ' có ' + quantityExp + ' sp sắp hết hạn',
+          image_url: listProduct[i].colors[0].image_url,
           status: false,
           type: true
         });
@@ -951,7 +953,8 @@ async function checkNotify() {
       try {
         let notification = new Notification({
           product: listProduct[i]?._id,
-          description: 'Sản phẩm ' + listProduct[i]?.name + 'số lượng chỉ còn ' + listProduct[i]?.colors[0]?.quantity,
+          description: 'Sản phẩm ' + listProduct[i]?.name + ' số lượng chỉ còn ' + listProduct[i]?.colors[0]?.quantity,
+          image_url: listProduct[i].image_url,
           status: false,
           type: false
         });
@@ -964,8 +967,9 @@ async function checkNotify() {
 }
 const seenNotify = async (req, res) => {
   const id = req.params.id;
+  
   try {
-    await Notification.updateOne(id, { $set: { status: true } });
+    await Notification.updateOne({_id:objectId(`${id}`)}, { $set: { status: true } });
     return res.status(200).json({
       success: true,
       msg: 'Đã xem '
@@ -977,6 +981,37 @@ const seenNotify = async (req, res) => {
     });
   }
 };
+
+const seenAllnotify = async (req,res)=>{
+  try{
+    await Notification.updateMany({status:false},{status:true})
+    return res.status(200).json({
+      success: true,
+      msg: 'Đã xem '
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: 'error: ' + err.message
+    });
+  }
+}
+
+const deleteAllNotify  = async (req,res)=>{
+  try{
+    await Notification.deleteMany({})
+    return res.status(200).json({
+      success: true,
+      msg: 'Đã xóa '
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: 'error: ' + err.message
+    });
+  }
+}
+
 
 // const deleteCategory = catchAsync(async (req, res, next) => {
 //   await categoryService.deleteCategoryBySlug(req.params.slug);
@@ -1001,5 +1036,7 @@ module.exports = {
   ListHistoryPriceByIdProduct,
   Notifications,
   checkNotify,
-  seenNotify
+  seenNotify,
+  seenAllnotify,
+  deleteAllNotify
 };

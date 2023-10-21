@@ -1444,7 +1444,7 @@ const checkQuantity = async(products) =>{
     if(createNotification && listProduct[i]?.colors[0]?.quantity<quantityNotification){
       let notification = new Notification({
         product:listProduct[i]?._id,
-        description: ("Sản phẩm "+ listProduct[i]?.name + "số lượng chỉ còn " + listProduct[i]?.color[0]?.quantity ),
+        description: ("Sản phẩm "+ listProduct[i]?.name + " số lượng chỉ còn " + listProduct[i]?.color[0]?.quantity ),
         status:false,
         type:false,
       })

@@ -7,6 +7,14 @@ const productApi = {
     const url = `product/notifications`;
     return axiosClient.get(url);
   },
+  seenAllnotify(): Promise<ReturnReponse<any>> {
+    const url = `product/seenAllnotify`;
+    return axiosClient.get(url);
+  },
+  deleteAllNotify(): Promise<ReturnReponse<any>> {
+    const url = `product/deleteAllNotify`;
+    return axiosClient.get(url);
+  },
   seenNotify(id: any): Promise<ReturnReponse<any>> {
     const url = `product/seenNotify/${id}`;
     return axiosClient.get(url);

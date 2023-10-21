@@ -40,7 +40,7 @@ ul {
   right: 0;
   z-index: 1;
   border-top: 1px solid #ddd;
-  max-height: 350px;
+  max-height: 400px;
   overflow-y: scroll;
 }
 .notification-drop .item ul li {
@@ -99,3 +99,35 @@ ul {
   width: 25px;
   margin-right: 10px;
 }
+
+.unSeen{
+  background-color: #ccc;
+}
+
+.notify{
+  color: black;
+  border-radius: 5px;
+  border-style: solid;
+  border-color: #000;
+  border-width: thin;
+  margin-top: 2px;
+  margin-bottom: 2px;
+
+}
+
+.action {
+  display: flex;
+  justify-content: space-between;
+  max-height: 20px;
+  background-color: #fff !important;
+  margin-bottom: 10px;
+  cursor: default;
+}
+
+.buttonContainer {
+  flex: 1; /* Đảm bảo cả hai nút đều chiếm một phần bằng nhau */
+  text-align: center; /* Căn giữa nút bên trong */
+  cursor: pointer !important;
+}
+
+

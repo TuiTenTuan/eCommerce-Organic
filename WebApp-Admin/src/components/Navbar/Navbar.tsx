@@ -29,8 +29,28 @@ const Navbar = (props: Props) => {
     }
   };
   const handleSeenNotify = async (id: any) => {
+    debugger
     await productApi.seenNotify(id);
+    setNotify()
   };
+
+  const handleSeenAllNotify = async () =>{
+    await productApi.seenAllnotify();
+    setNotify()
+  }
+  const handleDeleteNotify = async ()=>{
+    await productApi.deleteAllNotify();
+    setNotify()
+  }
+  const setNotify = async ()=>{
+    const result = await productApi.getNotifications(); 
+    let temp = 0;
+    result.notifications.forEach((item: any) =>
+      !item.status ? (temp += 1) : temp
+    );
+    setUnSeen(temp);
+    setNotifications(result.notifications);
+  }
 
   const hanldeCloseNoti = () => {
     setVisible(false);
@@ -40,11 +60,7 @@ const Navbar = (props: Props) => {
     (async () => {
       const result = await productApi.getNotifications();
       let temp = 0;
-      result.notifications.forEach((item: any) =>
-        !item.status ? (temp += 1) : temp
-      );
-      setUnSeen(temp);
-      setNotifications(result.notifications);
+      setNotify()
       const handleClickOutside = (event: any) => {
         if (
           notificationRef.current &&
@@ -280,44 +296,26 @@ const Navbar = (props: Props) => {
                   </svg>
                   <span className="btn__badge pulse-button ">{unSeen}</span>
 
-                  {visible && (
-                    // <ul>
-                    //   <li className="flex">
-                    //     <img
-                    //       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                    //       alt=""
-                    //       className="img-item h-full rounded-[50%]"
-                    //     />
-                    //     clm
-                    //   </li>
-                    //   <li className="flex">
-                    //     <img
-                    //       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                    //       alt=""
-                    //       className="img-item h-full rounded-[50%]"
-                    //     />
-                    //     Second Item
-                    //   </li>
-                    //   <li className="flex">
-                    //     <img
-                    //       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
-                    //       alt=""
-                    //       className="img-item h-full rounded-[50%]"
-                    //     />
-                    //     Third Item
-                    //   </li>
-                    // </ul>
+                  {visible && notifications.length > 0 && (
                     <ul>
+                      <li className="action">
+                        <span className="buttonContainer" onClick={()=>{
+                          handleDeleteNotify()
+                        }}>Xóa tất cả</span>
+                        <span className="buttonContainer" onClick={()=>{
+                          handleSeenAllNotify()
+                        }}>Đánh dấu là đã đọc</span>
+                      </li>
                       {notifications.map((item: any, index: number) => (
                         <NavLink
                           to="/productlist"
                           onClick={() => {
-                            handleSeenNotify(item.id);
+                            handleSeenNotify(item._id);
                           }}
                         >
-                          <li className="flex">
+                           <li className={`flex notify ${item.status ? '' : 'unSeen'}`}>
                             <img
-                              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqekwL2LW2-NBO_FE2f2IjZQnp_1xl-shGcg&usqp=CAU"
+                              src={item.image_url}
                               alt=""
                               className="img-item h-full rounded-[50%]"
                             />

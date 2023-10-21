@@ -7,6 +7,9 @@ const notificationSchema = mongoose.Schema(
         product:{
             type : mongoose.Schema.Types.ObjectId,ref : 'Product'
         },
+        image_url:{
+            type: String
+        },
         description:{
             type: String
         },
