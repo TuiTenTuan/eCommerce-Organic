@@ -49,8 +49,9 @@ const HeaderSearch = () => {
     300
   );
 
-  const onSearch = (data) => {
-    window.location.href = `/tim-kiem?search=${data.search}`;
+  const onSearch = () => {
+    debugger
+    window.location.href = `/tim-kiem?search=${searchKeyword}`;
   };
 
   return (
