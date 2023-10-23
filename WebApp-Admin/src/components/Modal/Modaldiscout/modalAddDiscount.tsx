@@ -28,7 +28,7 @@ export default function ModalAddDiscount({
       maxPrice: Number(data.maxPrice),
       is_percent: Boolean(data.is_percent),
       is_ship: Boolean(data.is_ship),
-      is_oic: Boolean(data.is_oic),
+      is_oic: true,
       is_oid: Boolean(data.is_oid),
       value: Number(data.value),
     };
@@ -39,11 +39,11 @@ export default function ModalAddDiscount({
     console.log(payload);
     const result = await discountApi.addDiscount(payload);
     console.log(result);
-    if ((result.msg = "Thành công ")) {
+    if ((result.msg == "Thành công ")) {
       notifySuccess("Success");
       reload((ref: any) => ref + 1);
       reset();
-    } else notifyError("Fail");
+    }else notifyError("Fail");
   };
 
   const handleSelect = (e: any) => {
@@ -184,7 +184,7 @@ export default function ModalAddDiscount({
                     </select>
                   </div>
 
-                  <div className="flex items-center gap-4 mb-2  ">
+                  {/* <div className="flex items-center gap-4 mb-2  ">
                     <label
                       htmlFor="countries_disabled"
                       className="block w-[200px] text-sm font-medium text-gray-900 dark:text-black"
@@ -202,7 +202,7 @@ export default function ModalAddDiscount({
                         true
                       </option>
                     </select>
-                  </div>
+                  </div> */}
 
                   <div className="flex items-center gap-4 mb-2   ">
                     <label

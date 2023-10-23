@@ -3,8 +3,12 @@ import { ReturnReponse } from "../response.interface";
 import { IResProduct } from "./product.type";
 
 const productApi = {
-  getNotifications():Promise<ReturnReponse<any>>{
+  getNotifications(): Promise<ReturnReponse<any>> {
     const url = `product/notifications`;
+    return axiosClient.get(url);
+  },
+  seenNotify(id: any): Promise<ReturnReponse<any>> {
+    const url = `product/seenNotify/${id}`;
     return axiosClient.get(url);
   },
   getProduct(

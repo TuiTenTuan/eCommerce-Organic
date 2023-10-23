@@ -162,10 +162,10 @@ function Userlist(props: Props) {
               <div className="flex items-center justify-center">Name</div>
             </th>
             <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
-              <div className="flex items-center justify-center">Address</div>
+              <div className="flex items-center justify-center">Number</div>
             </th>
             <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
-              <div className="flex items-center justify-center">Number</div>
+              <div className="flex items-center justify-center">Address</div>
             </th>
             <th className="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">
               <div className="flex items-center justify-center">

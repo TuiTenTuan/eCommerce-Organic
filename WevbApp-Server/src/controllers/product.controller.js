@@ -18,11 +18,11 @@ const { categoryController } = require('.');
 const { Supplier } = require('../models');
 const History = require('../models/history.model');
 const Notification = require('../models/notification.model');
-const ERROR_PRODUCT_001 ='Lỗi không lưu đồng bộ với category' 
-const ERROR_PRODUCT_002 ='Không thể lưu lịch sử giá'
-const expNotification = 7
+const ERROR_PRODUCT_001 = 'Lỗi không lưu đồng bộ với category';
+const ERROR_PRODUCT_002 = 'Không thể lưu lịch sử giá';
+const expNotification = 7;
 const quantityNotification = 30;
-let isCheckNotify = false
+let isCheckNotify = false;
 const getAProduct = catchAsync(async (req, res, next) => {
   const _id = req.query._id;
   const code = req.query.code;
@@ -86,7 +86,7 @@ const ListColor = async (req, res, next) => {
 
 const List = async (req, res, next) => {
   // await checkNotify();
-  
+
   try {
     const category = req.query.category;
     let specs = req.query.specs; // {name: value} "ram" : "1gb;2gb"
@@ -112,46 +112,49 @@ const List = async (req, res, next) => {
       // console.log('specs', specs);
     }
     if (!!colors) colors = colors.split(';').map((e) => e.trim());
-    if (!!category) {
-      if (!categoryTempExist) await RequestCategory();
-      const categoryDoc = !categoryTempExist ? await Category.findOne({ name: category }) : categoryTemp[category];
-      if (!categoryDoc) return responseError({ res, statusCode: 500, message: config.message.err500 });
-      products = categoryDoc.products;
+    // if (!!category) {
+    //   if (!categoryTempExist) await RequestCategory();
+    //   const categoryDoc = !categoryTempExist ? await Category.findOne({ name: category }) : categoryTemp[category];
+    //   if (!categoryDoc) return responseError({ res, statusCode: 500, message: config.message.err500 });
+    //   products = categoryDoc.products;
 
-      if (!!specs) {
-        //query result
-        for (let i = 0; i < categoryDoc.specsModel.length && products.length > 0; i++) {
-          const e = categoryDoc.specsModel[i];
-          const specsProduct = [];
+    //   if (!!specs) {
+    //     //query result
+    //     for (let i = 0; i < categoryDoc.specsModel.length && products.length > 0; i++) {
+    //       const e = categoryDoc.specsModel[i];
+    //       const specsProduct = [];
 
-          if (specs.hasOwnProperty(e.name)) {
-            const values = specs[e.name];
-            // console.log('name', e.name);
-            // console.log('values', values);
+    //       if (specs.hasOwnProperty(e.name)) {
+    //         const values = specs[e.name];
+    //         // console.log('name', e.name);
+    //         // console.log('values', values);
 
-            for (let j = 0; j < e.values.length; j++) {
-              if (values.includes(e.values[j].value)) {
-                // console.log('valueTest', e.values[j].value);
-                e.values[j].products.forEach((id) => specsProduct.push(id.toString()));
-              }
-            }
-            products = products.filter((id) => specsProduct.includes(id.toString()));
-          }
-        }
-      }
+    //         for (let j = 0; j < e.values.length; j++) {
+    //           if (values.includes(e.values[j].value)) {
+    //             // console.log('valueTest', e.values[j].value);
+    //             e.values[j].products.forEach((id) => specsProduct.push(id.toString()));
+    //           }
+    //         }
+    //         products = products.filter((id) => specsProduct.includes(id.toString()));
+    //       }
+    //     }
+    //   }
 
-      if (products.length == 0)
-        if (req.query.skip == undefined)
-          return responseSuccess({ res, message: config.message.success, data: { products: [], count: 0 } });
-        else return responseSuccess({ res, message: config.message.success, data: { products: [] } });
-    }
+    //   if (products.length == 0)
+    //     if (req.query.skip == undefined)
+    //       return responseSuccess({ res, message: config.message.success, data: { products: [], count: 0 } });
+    //     else return responseSuccess({ res, message: config.message.success, data: { products: [] } });
+    // }
 
     const queryOptions = { price: { $lte: max_price, $gte: min_price } };
+    if (!!category) {
+      queryOptions['category'] = { $regex: category };
+    }
     if (!!search) {
       const pattern = { $regex: '.*' + search + '.*', $options: 'i' };
       queryOptions['$or'] = [{ name: pattern }, { code: pattern }, { category: pattern }];
     }
-    if (!!products) queryOptions['_id'] = { $in: products };
+    // if (!!products) queryOptions['_id'] = { $in: products };
     if (!!colors) queryOptions['colors.color'] = { $in: colors };
     const sortOptions = {};
 
@@ -299,7 +302,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     image.destroy(img_info.public_id);
     await session.abortTransaction();
     session.endSession();
-    return responseError({ res, statusCode: 500, message: config.message.ERROR_PRODUCT_001});
+    return responseError({ res, statusCode: 500, message: config.message.ERROR_PRODUCT_001 });
   }
 });
 const Update = async (req, res, next) => {
@@ -495,7 +498,11 @@ const ValidCart = async (req, res, next) => {
         continue;
       }
       let today = new Date();
-      let listImports = await Import.find({ 'products.product': doc._id },{"products.soldOut":false},{'products.exp':{$lte: today}}).sort({"products.exp":1});
+      let listImports = await Import.find(
+        { 'products.product': doc._id },
+        { 'products.soldOut': false },
+        { 'products.exp': { $lte: today } }
+      ).sort({ 'products.exp': 1 });
       const doc_color = doc.colors[colorIndex];
       // console.log("doc_color")
       if (doc_color.quantity < unit.quantity) {
@@ -550,7 +557,7 @@ const Imports = async (req, res, next) => {
       // console.log("data",data[i])
       const doc = await Product.findOne({ code }).select('colors').exec();
 
-      if (!doc) failure.push({ code, quantity, price: Number(price)});
+      if (!doc) failure.push({ code, quantity, price: Number(price) });
       else {
         var flag = false;
         for (let colordoc of doc.colors) {
@@ -563,7 +570,8 @@ const Imports = async (req, res, next) => {
             break;
           }
         }
-        if (flag && !!(await doc.save(opts))) success.push({ product: doc._id, quantity, price, color, sold:0, soldOut:false, exp});
+        if (flag && !!(await doc.save(opts)))
+          success.push({ product: doc._id, quantity, price, color, sold: 0, soldOut: false, exp });
         else failure.push(data[i]);
       }
     }
@@ -869,98 +877,106 @@ const CommingSoon = async (req, res, next) => {
   }
 };
 
-const Notifications = async (req,res)=>{
-  try{
-    const notifications = await Notification.find({})
+const Notifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find({});
     return res.status(200).send({
-      success:true,
+      success: true,
       notifications
-    })
-  }catch(err){
+    });
+  } catch (err) {
     return res.status(500).json({
-      success:false,
-      msg: "error: " + err.message
-    })
+      success: false,
+      msg: 'error: ' + err.message
+    });
   }
-}
+};
 
-async function checkNotify(){
+async function checkNotify() {
   let today = new Date();
-  today.setHours(0)
-  today.setMinutes(0)
-  today.setSeconds(0)
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
   timeToday = today.getTime();
   let tempDate = new Date();
   let tempTime = 0;
-  let listProduct =await Product.find({});
-  let listNotifications = await Notification.find( {createdAt: { $gte: today}})
-  for (let i = 0; i < listProduct.length; i++){
-    let createNotification1 = true
-    let createNotification2 = true
+  let listProduct = await Product.find({});
+  let listNotifications = await Notification.find({ createdAt: { $gte: today } });
+  for (let i = 0; i < listProduct.length; i++) {
+    let createNotification1 = true;
+    let createNotification2 = true;
     for (let index = 0; index < listNotifications.length; index++) {
-      if (!!listNotifications[index].type &&  createNotification1 && listNotifications[index].product.equals(listProduct[i]._id)){
-        createNotification1 =false
-      } 
-      if(!listNotifications[index].type &&  createNotification2 && listNotifications[index].product.equals(listProduct[i]._id)){
-        createNotification2 = false
+      if (
+        !!listNotifications[index].type &&
+        createNotification1 &&
+        listNotifications[index].product.equals(listProduct[i]._id)
+      ) {
+        createNotification1 = false;
+      }
+      if (
+        !listNotifications[index].type &&
+        createNotification2 &&
+        listNotifications[index].product.equals(listProduct[i]._id)
+      ) {
+        createNotification2 = false;
       }
     }
-    if(createNotification1){
+    if (createNotification1) {
       let listImport = await Import.find({
-        $and:[
-          {"products.product":listProduct[i]._id},
-          {"products.sold":false},
-          {"products.exp":{$gt:today}}
+        $and: [
+          { 'products.product': listProduct[i]._id },
+          { 'products.sold': false },
+          { 'products.exp': { $gt: today } }
         ]
       });
-      let quantityExp = 0
-      for (let j = 0; j < listImport.length; j++){
-        tempDate = new Date(listImport[j].products[0].exp)
+      let quantityExp = 0;
+      for (let j = 0; j < listImport.length; j++) {
+        tempDate = new Date(listImport[j].products[0].exp);
         tempTime = tempDate.getTime();
-        if(tempTime-timeToday>expNotification*24*60*60*1000){
-          quantityExp += (listImport[j].products[0].quantity - listImport[j].products[0].sold)
+        if (tempTime - timeToday > expNotification * 24 * 60 * 60 * 1000) {
+          quantityExp += listImport[j].products[0].quantity - listImport[j].products[0].sold;
         }
       }
-      if (quantityExp>0){
-        let notification =  new Notification({
-          product:listProduct[i]._id,
-          description:("Sản phẩm " +listProduct[i].name + " có "+ quantityExp + " sắp hết hạn"),
-          status:false,
-          type:true
-        })
-        notification.save()
+      if (quantityExp > 0) {
+        let notification = new Notification({
+          product: listProduct[i]._id,
+          description: 'Sản phẩm ' + listProduct[i].name + ' có ' + quantityExp + ' sắp hết hạn',
+          status: false,
+          type: true
+        });
+        notification.save();
       }
     }
-    if (createNotification2 && listProduct[i]?.colors[0]?.quantity<quantityNotification){
-      try{
+    if (createNotification2 && listProduct[i]?.colors[0]?.quantity < quantityNotification) {
+      try {
         let notification = new Notification({
-          product:listProduct[i]?._id,
-          description: ("Sản phẩm "+ listProduct[i]?.name + "số lượng chỉ còn " + listProduct[i]?.colors[0]?.quantity ),
-          status:false,
-          type:false,
-        })
-        notification.save()
-      }catch(err){
-        throw err
+          product: listProduct[i]?._id,
+          description: 'Sản phẩm ' + listProduct[i]?.name + 'số lượng chỉ còn ' + listProduct[i]?.colors[0]?.quantity,
+          status: false,
+          type: false
+        });
+        notification.save();
+      } catch (err) {
+        throw err;
       }
     }
   }
 }
-const seenNotify = async (req,res) => {
-  const id = req.params.id
-  try{
-    await Notification.updateOne(id,{$set:{status:true}})
+const seenNotify = async (req, res) => {
+  const id = req.params.id;
+  try {
+    await Notification.updateOne(id, { $set: { status: true } });
     return res.status(200).json({
       success: true,
-      msg:"Đã xem "
-    })
-  }catch(err){
+      msg: 'Đã xem '
+    });
+  } catch (err) {
     return res.status(500).json({
-      success:false,
-      msg:"error: " + err.message
-    })
+      success: false,
+      msg: 'error: ' + err.message
+    });
   }
-}
+};
 
 // const deleteCategory = catchAsync(async (req, res, next) => {
 //   await categoryService.deleteCategoryBySlug(req.params.slug);
