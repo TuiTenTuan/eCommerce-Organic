@@ -67,6 +67,18 @@ create table Customer
 )
 go
 
+create table Notification
+(
+	Id uniqueidentifier primary key,
+	Email nvarchar(100),
+	Subject nvarchar(256),
+	Content ntext,
+	IsViewed bit,
+	SendAt DateTime
+
+	foreign key (Email) references Customer(Email)
+)
+go
 
 create table Address
 (
