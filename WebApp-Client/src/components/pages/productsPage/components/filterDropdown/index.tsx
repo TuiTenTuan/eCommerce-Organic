@@ -10,6 +10,7 @@ type Props = {
 };
 
 const FilterDropdown = (props: Props) => {
+  debugger
   const {
     icon = <></>,
     nameFilter,

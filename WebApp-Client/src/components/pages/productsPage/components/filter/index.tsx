@@ -264,19 +264,25 @@ const ColorsFilter = (props) => {
 };
 
 const MIN_MONEY = 0;
-const MAX_MONEY = 100000000;
+const MAX_MONEY = 1000000;
 
 const MoneyRangeFilter = () => {
+  debugger
   const router = useRouter();
 
   const { query } = router;
+  console.log("tmpne",query)
 
   const min_price = query?.['min_price'];
   const max_price = query?.['max_price'];
+  console.log(min_price)
+  console.log(max_price)
 
   const range = React.useRef({ min_price, max_price });
 
   const chooseRange = () => {
+    console.log(range.current.min_price as string)
+    console.log(range.current.max_price as string)
     appendToURL({
       router,
       newQuery: {
@@ -329,5 +335,6 @@ const MoneyRangeFilter = () => {
     </div>
   );
 };
+
 
 export default Filter;

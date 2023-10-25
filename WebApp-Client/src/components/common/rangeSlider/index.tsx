@@ -2,7 +2,7 @@ import React from 'react';
 import { formatCurrency2 } from '~/helpers/base.helper';
 import styles from './style.module.css';
 
-const STEP = 1000000;
+const STEP = 1000;
 
 const MultiRangeSlider = ({
   min,

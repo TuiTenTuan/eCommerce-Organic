@@ -161,12 +161,14 @@ const List = async (req, res, next) => {
 
     if (!!sortName && ['price', 'sale', 'sold', 'total_rate'].includes(sortName) && (sortType == 1 || sortType == -1)) {
       sortOptions[sortName] = sortType;
+    }else{
+      sortOptions["createdAt"]=-1
     }
     console.log(sortOptions);
     const count = await Product.countDocuments(queryOptions);
     // console.log(count);
     Product.find(queryOptions)
-      .sort({ createdAt: -1 })
+      .sort(sortOptions)
       .skip(skip)
       .limit(limit)
       .lean()
