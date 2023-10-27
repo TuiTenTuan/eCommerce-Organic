@@ -233,7 +233,7 @@ const quantityNotification = 10;
 //   }
 // };
 const processBills = async (model, option, step_time) => {
-  const bills = await model.find(option).exec();
+  const bills = await model.find(option).sort({"createdAt":1}).exec();
   console.log('------------------------' + bills);
 
   const counter = {};
@@ -243,7 +243,7 @@ const processBills = async (model, option, step_time) => {
   let point = { bills: [], total: 0, time, count: 0 };
 
   for (const b of bills) {
-    if (b.createdAt.getTime() > threshold) {
+    if (b.createdAt.getTime() >= threshold) {
       graph.push(point);
       time = b.createdAt;
       threshold = time.getTime() + step_time;
