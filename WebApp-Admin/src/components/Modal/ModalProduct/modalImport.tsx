@@ -30,9 +30,12 @@ export default function ModalImport({
   } = useForm<FormValues>({});
 
   const submit = async (data: any, e: any) => {
+    debugger
     e.preventDefault();
     const selectedDate = new Date(data.exp).getTime();
     const currentDate = new Date().getTime();
+    let tmpPrice:number = data.price;
+    let tmpQuantity:number = data.quantity;
     if (selectedDate < currentDate) {
       toast.error("Ngày phải lớn hơn ngày hiện tại", {
         position: "top-center",
@@ -48,6 +51,26 @@ export default function ModalImport({
       7
     ) {
       toast.error("Ngày phải lớn hơn ngày hiện tại 7 ngày", {
+        position: "top-center",
+        autoClose: 1000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+    if(tmpQuantity<=0){
+      toast.error("Số lượng phải lớn hơn 0!", {
+        position: "top-center",
+        autoClose: 1000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+    if(tmpPrice<=0){
+      toast.error("Giá nhập phải lớn hơn 0!", {
         position: "top-center",
         autoClose: 1000,
         closeOnClick: true,

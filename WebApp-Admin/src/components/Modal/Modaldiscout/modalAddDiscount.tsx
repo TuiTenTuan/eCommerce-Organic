@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import discountApi from "../../../apis/discount/discount.api";
 import { notifyError, notifySuccess } from "../../../utils/notify";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function ModalAddDiscount({
   setShowModalDiscount,
@@ -32,6 +33,33 @@ export default function ModalAddDiscount({
       is_oid: Boolean(data.is_oid),
       value: Number(data.value),
     };
+    const date = new Date();
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    const today = date.getTime();
+    const fromDate = new Date(data.dateStart).getTime();
+    const toDate = new Date(data.dateEnd).getTime();
+    if(fromDate<today ){
+      toast.error("Ngày bắt đầu phải lớn hơn ngày hiện tại!", {
+        position: "top-center",
+        autoClose: 1000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+    if(fromDate>toDate){
+      toast.error("Ngày bắt đầu phải nhỏ hơn ngày kết thúc!", {
+        position: "top-center",
+        autoClose: 1000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
     if (payload.minPrice > payload.maxPrice) {
       notifyError("Fail: MinPrice > MaxPrice");
       return;
